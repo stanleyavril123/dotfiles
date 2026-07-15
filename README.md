@@ -14,7 +14,7 @@ A Lua-based Neovim configuration focused on project navigation, diagnostics, rep
 
 - Neovim 0.10 or newer; Neovim 0.11+ is recommended
 - Git, Make, Node.js, Python 3, and ripgrep
-- A Nerd Font for icons
+- A Nerd Font configured in the terminal (for example, JetBrainsMono Nerd Font)
 - tmux is optional
 
 ## Installation
