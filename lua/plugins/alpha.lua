@@ -1,37 +1,49 @@
 return {
-  {
-    "goolord/alpha-nvim",
-    -- load on startup
-    event = "VimEnter",
-    -- optional: to get icons in your buttons
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    config = function()
-      local alpha = require("alpha")
-      local dashboard = require("alpha.themes.dashboard")
+	{
+		"goolord/alpha-nvim",
+		event = "VimEnter",
+		config = function()
+			local alpha = require("alpha")
+			local dashboard = require("alpha.themes.dashboard")
+			local stats = require("lazy").stats()
+			local cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ":~")
 
-      -- 1) Customize your header (ASCII art)
-      dashboard.section.header.val = {
-        [[                                  __]],
-        [[     ___     ___    ___   __  __ /\_\    ___ ___]],
-        [[    / _ `\  / __`\ / __`\/\ \/\ \\/\ \  / __` __`\]],
-        [[   /\ \/\ \/\  __//\ \_\ \ \ \_/ |\ \ \/\ \/\ \/\ \]],
-        [[   \ \_\ \_\ \____\ \____/\ \___/  \ \_\ \_\ \_\ \_\]],
-        [[    \/_/\/_/\/____/\/___/  \/__/    \/_/\/_/\/_/\/_/]],
-      }
+			dashboard.section.header.val = {
+				[[                                  __]],
+				[[     ___     ___    ___   __  __ /\_\    ___ ___]],
+				[[    / _ `\  / __`\ / __`\/\ \/\ \\/\ \  / __` __`\]],
+				[[   /\ \/\ \/\  __//\ \_\ \ \ \_/ |\ \ \/\ \/\ \/\ \]],
+				[[   \ \_\ \_\ \____\ \____/\ \___/  \ \_\ \_\ \_\ \_\]],
+				[[    \/_/\/_/\/____/\/___/  \/__/    \/_/\/_/\/_/\/_/]],
+			}
+			dashboard.section.header.opts.hl = "Type"
 
-      -- 2) Define buttons
-      dashboard.section.buttons.val = {
-        dashboard.button("f", "  Find file", ":Telescope find_files<CR>"),
-        dashboard.button("r", "  Recent files", ":Telescope oldfiles<CR>"),
-        dashboard.button("t", "  Find text", ":Telescope live_grep<CR>"),
-        dashboard.button("q", "  Quit NVIM", ":qa<CR>"),
-      }
+			dashboard.section.buttons.val = {
+				dashboard.button("f", "  Find file", "<cmd>Telescope find_files<CR>"),
+				dashboard.button("g", "  Search project", "<cmd>Telescope live_grep<CR>"),
+				dashboard.button("r", "  Recent files", "<cmd>Telescope oldfiles<CR>"),
+				dashboard.button("e", "󰙅  File explorer", "<cmd>Neotree reveal<CR>"),
+				dashboard.button("n", "  New file", "<cmd>ene <BAR> startinsert<CR>"),
+				dashboard.button("l", "󰒲  Plugin manager", "<cmd>Lazy<CR>"),
+				dashboard.button("q", "  Quit", "<cmd>qa<CR>"),
+			}
 
-      -- 3) (Optional) Footer
-      dashboard.section.footer.val = ""
-      table.insert(dashboard.config.layout, 1, { type = "padding", val = 4 })
-      -- 4) Send to alpha
-      alpha.setup(dashboard.config)
-    end,
-  },
+			dashboard.section.footer.val = {
+				cwd,
+				string.format("%d plugins  |  startup %.0f ms", stats.count, stats.startuptime),
+			}
+			dashboard.section.footer.opts.hl = "Comment"
+
+			dashboard.config.layout = {
+				{ type = "padding", val = 5 },
+				dashboard.section.header,
+				{ type = "padding", val = 2 },
+				dashboard.section.buttons,
+				{ type = "padding", val = 2 },
+				dashboard.section.footer,
+			}
+			dashboard.config.opts.noautocmd = true
+			alpha.setup(dashboard.config)
+		end,
+	},
 }

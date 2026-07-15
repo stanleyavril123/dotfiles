@@ -8,124 +8,94 @@
   <img src="assets/screenshot-editor.png" alt="Editor" width="700"/>
 </p>
 
-Neovim configuration written in Lua.
-
-Includes:
-- Plugin management via **lazy.nvim**
-- LSP/tooling via **mason.nvim** + **mason-lspconfig**
-- Formatting/linting via **none-ls** (null-ls)
-- **Catppuccin (mocha)** theme
-- Treesitter, Telescope, Neo-tree, Lualine, Comment.nvim, and tmux navigation
-
----
-
-## Features
-
-- Lazy-loaded plugins
-- LSP setup + automated installs through Mason
-- Formatters/linters through none-ls (e.g. Prettier, Black, Stylua)
-- Treesitter syntax highlighting
-- Telescope fuzzy finding
-- Neo-tree file explorer
-- Lualine statusline
-- Comment.nvim (`gc`, `gb`)
-- Tmux navigator bindings
-- Simple run commands:
-  - `<leader>r` runs `python %` or `node %`
-  - `<leader>ps` opens a terminal
-
----
-
-## Structure
-
-```
-~/.config/nvim/
-├── init.lua
-└── lua/
-    └── plugins/
-        ├── alpha.lua
-        ├── autopairs.lua
-        ├── catppuccin.lua
-        ├── comment.lua
-        ├── completions.lua
-        ├── lsp-config.lua
-        ├── none-ls.lua
-        ├── treesitter.lua
-        ├── telescope.lua
-        ├── neotree.lua
-        ├── lualine.lua
-        └── tmux.lua
-```
-
----
+A Lua-based Neovim configuration focused on project navigation, diagnostics, repeatable tooling, Git review, and external coding-agent workflows.
 
 ## Requirements
 
-- Neovim ≥ 0.8
-- Git
-- Node.js (for tools like Prettier / ESLint)
-- Python 3 (for tools like Black / Pyright)
-- Optional: Nerd Font for icons
-
----
+- Neovim 0.10 or newer; Neovim 0.11+ is recommended
+- Git, Make, Node.js, Python 3, and ripgrep
+- A Nerd Font for icons
+- tmux is optional
 
 ## Installation
 
 ```bash
 git clone https://github.com/stanleyavril123/nvim-config.git ~/.config/nvim
+nvim
 ```
 
-Open Neovim. Plugins will install automatically.
+Lazy installs plugins and Mason installs the declared language servers and formatters automatically.
 
----
+## Main Features
 
-## Tooling
+- Plugin management with lazy.nvim
+- Catppuccin Mocha UI with coordinated dashboard, statusline, pickers, and popups
+- Diagnostic-aware buffer tabs and scope-aware indentation guides
+- LSP servers and external tools managed by Mason
+- Deterministic formatting and format-on-save with conform.nvim
+- Treesitter highlighting and indentation
+- Telescope project navigation and search
+- Trouble diagnostics and quickfix views
+- Overseer project tasks and test commands
+- Neo-tree file explorer
+- Gitsigns, Neogit, and Diffview for reviewing changes
+- Persistent undo and automatic detection of files changed by external agents
+- Discoverable mappings through which-key.nvim
+- Native inline previews for Codex edits
 
-### Mason
-Open Mason and install what you need:
+## Keymaps
 
-```vim
-:Mason
+Leader is `Space`.
+
+| Mapping                     | Action                         |
+| --------------------------- | ------------------------------ |
+| `<C-p>` / `<leader>sf`      | Find files                     |
+| `<leader>sg`                | Live grep project              |
+| `<leader>sw`                | Grep word under cursor         |
+| `<leader>sb`                | Search current buffer          |
+| `<leader>sd`                | Search diagnostics             |
+| `<leader>gc`                | Find changed Git files         |
+| `<leader>gf`                | Format file or selection       |
+| `<leader>xx`                | Workspace diagnostics          |
+| `<leader>xb`                | Buffer diagnostics             |
+| `<leader>xq`                | Quickfix list                  |
+| `<leader>rr`                | Select and run a project task  |
+| `<leader>rl`                | Run the last task              |
+| `<leader>rt`                | Toggle task list               |
+| `<S-h>` / `<S-l>`           | Previous or next buffer        |
+| `<leader>bp`                | Pick a visible buffer          |
+| `<leader>bd`                | Close buffer with confirmation |
+| `<C-n>`                     | Toggle file explorer           |
+| `<leader>gg`                | Open Neogit                    |
+| `<leader>gd`                | Open Diffview                  |
+| `]h` / `[h`                 | Next or previous Git hunk      |
+| `]d` / `[d`                 | Next or previous diagnostic    |
+
+Use `:Mason`, `:ConformInfo`, `:OverseerRun`, and `:checkhealth` when diagnosing tooling.
+
+## Structure
+
+```text
+~/.config/nvim/
+├── init.lua
+└── lua/
+    ├── config/
+    │   ├── autocmds.lua
+    │   ├── keymaps.lua
+    │   └── options.lua
+    └── plugins/
+        ├── formatting.lua
+        ├── lsp-config.lua
+        ├── telescope.lua
+        ├── tooling.lua
+        ├── workflow.lua
+        └── ...
 ```
 
-Common:
-- LSP: `lua-language-server`, `pyright`, `tsserver`
-- Formatters: `stylua`, `black`, `prettier`
+## Compatibility
 
-### Treesitter
-Install parsers as needed:
-
-```vim
-:TSInstall lua python javascript
-```
-
----
-
-## Theme
-
-Catppuccin Mocha is configured in `lua/plugins/catppuccin.lua`.
-
-If you prefer a transparent background (terminal background shows through), keep:
-```lua
-transparent_background = true
-```
-
-If you want Neovim to draw its own background, set it to `false`.
-
----
-
-## LSP & formatting
-
-- LSP configuration: `lua/plugins/lsp-config.lua`
-- none-ls configuration: `lua/plugins/none-ls.lua`
-
-Manual formatting (example):
-- `<leader>gf` → format buffer
-
-If you want *format on save*, add a `BufWritePre` autocmd.
-
----
+The current machine uses Neovim 0.10, so Mason is pinned to v1 and Overseer uses its `nvim-0.7` compatibility branch. After upgrading Neovim to 0.11+, those compatibility pins can be removed and the LSP configuration can move to the native `vim.lsp.config` API.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT - see [LICENSE](LICENSE).

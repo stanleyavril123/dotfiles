@@ -2,20 +2,44 @@ return {
 	{
 		"nvim-telescope/telescope.nvim",
 		tag = "0.1.8",
+		cmd = "Telescope",
+		keys = {
+			{ "<C-p>", "<cmd>Telescope find_files<CR>", desc = "Find files" },
+			{ "<leader>sf", "<cmd>Telescope find_files<CR>", desc = "Find files" },
+			{ "<leader>sg", "<cmd>Telescope live_grep<CR>", desc = "Live grep" },
+			{ "<leader>sw", "<cmd>Telescope grep_string<CR>", desc = "Grep word" },
+			{ "<leader>sb", "<cmd>Telescope current_buffer_fuzzy_find<CR>", desc = "Search current file" },
+			{ "<leader>st", "<cmd>Telescope treesitter<CR>", desc = "File symbols" },
+			{ "<leader>sd", "<cmd>Telescope diagnostics<CR>", desc = "Workspace diagnostics" },
+			{ "<leader>sq", "<cmd>Telescope quickfix<CR>", desc = "Quickfix list" },
+			{ "<leader>gc", "<cmd>Telescope git_status<CR>", desc = "Changed Git files" },
+			{ "<leader>fb", "<cmd>Telescope buffers<CR>", desc = "Buffers" },
+			{ "<leader>fr", "<cmd>Telescope resume<CR>", desc = "Resume picker" },
+		},
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			{ "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
 		},
 		config = function()
 			local telescope = require("telescope")
-			local builtin = require("telescope.builtin")
 
 			telescope.setup({
 				defaults = {
-					file_ignore_patterns = { "venv/", "%.pyc", "__pycache__/", "node_modules" },
-				},
-				pickers = {
-					colorscheme = { enable_preview = true },
+					prompt_prefix = "   ",
+					selection_caret = "  ",
+					entry_prefix = "  ",
+					sorting_strategy = "ascending",
+					dynamic_preview_title = true,
+					layout_strategy = "horizontal",
+					layout_config = {
+						prompt_position = "top",
+						width = 0.88,
+						height = 0.82,
+						preview_width = 0.55,
+					},
+					borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
+					file_ignore_patterns = { "venv/", "%.pyc", "__pycache__/", "node_modules/", "%.git/" },
+					path_display = { "smart" },
 				},
 				extensions = {
 					fzf = {
@@ -27,18 +51,6 @@ return {
 				},
 			})
 			pcall(telescope.load_extension, "fzf")
-
-			-- FILES
-			vim.keymap.set("n", "<C-p>", builtin.find_files, { desc = "Find files" })
-			vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Buffers" })
-			vim.keymap.set("n", "<leader>fr", builtin.resume, { desc = "Resume last picker" })
-
-			-- SEARCH CODE
-			vim.keymap.set("n", "<leader>sw", builtin.current_buffer_fuzzy_find, { desc = "Search in current file" })
-			vim.keymap.set("n", "<leader>st", builtin.treesitter, { desc = "Treesitter symbols in file" })
-
-			vim.keymap.set("n", "gr", builtin.lsp_references, { desc = "Find references (LSP)" })
-			vim.keymap.set("n", "gd", builtin.lsp_definitions, { desc = "Go to definition (LSP)" })
 		end,
 	},
 }
