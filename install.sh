@@ -83,7 +83,7 @@ install_packages() {
 	log "Installing Ubuntu dependencies"
 	"${elevate[@]}" apt-get update
 	"${elevate[@]}" apt-get install -y \
-		build-essential ca-certificates curl fd-find fontconfig git jq nodejs npm \
+		build-essential ca-certificates curl fd-find fontconfig git jq libxcb-xkb1 nodejs npm \
 		python3 python3-venv ripgrep tmux unzip wl-clipboard xclip xz-utils
 }
 
