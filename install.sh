@@ -83,8 +83,14 @@ install_packages() {
 	log "Installing Ubuntu dependencies"
 	"${elevate[@]}" apt-get update
 	"${elevate[@]}" apt-get install -y \
-		build-essential ca-certificates curl fd-find fontconfig git jq libxcb-xkb1 nodejs npm \
+		build-essential ca-certificates curl fd-find fontconfig git jq libxcb-xkb1 nodejs \
 		python3 python3-venv ripgrep tmux unzip wl-clipboard xclip xz-utils
+
+	# NodeSource bundles npm with nodejs and conflicts with Debian's separate npm package.
+	# The Ubuntu/Debian nodejs package does not bundle it, so install it only when needed.
+	if ! command -v npm >/dev/null 2>&1; then
+		"${elevate[@]}" apt-get install -y npm
+	fi
 }
 
 install_claude() {
