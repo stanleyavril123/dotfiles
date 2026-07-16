@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+exec "$HOME/.local/kitty.app/bin/kitty" --start-as=maximized "$@"

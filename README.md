@@ -38,6 +38,7 @@ To install the editor and terminal setup without optional coding-agent CLIs:
 
 - Neovim 0.10.3 and its locked plugins
 - Kitty 0.32.2 with transparency and the Adapta Nokto Maia theme
+- Kitty windows start maximized through the tracked `~/.local/bin/kitty` launcher
 - tmux with `Ctrl-a`, Vim navigation, copy mode, and system clipboard support
 - JetBrainsMono Nerd Font 3.3.0
 - Mason language servers and formatters
@@ -65,6 +66,7 @@ The installer creates these links:
 ~/.config/kitty -> ~/.dotfiles/.config/kitty
 ~/.config/git/ignore -> ~/.dotfiles/.config/git/ignore
 ~/.tmux.conf    -> ~/.dotfiles/.tmux.conf
+~/.local/bin/kitty -> ~/.dotfiles/bin/kitty
 ~/.local/bin/agent-hooks -> ~/.dotfiles/bin/agent-hooks
 ```
 

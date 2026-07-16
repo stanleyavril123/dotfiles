@@ -146,13 +146,13 @@ install_kitty() {
 	fi
 
 	mkdir -p "$HOME/.local/bin" "$HOME/.local/share/applications"
-	ln -sfn -- "$HOME/.local/kitty.app/bin/kitty" "$HOME/.local/bin/kitty"
+	ln -sfn -- "$DOTFILES_DIR/bin/kitty" "$HOME/.local/bin/kitty"
 	ln -sfn -- "$HOME/.local/kitty.app/bin/kitten" "$HOME/.local/bin/kitten"
 	cp -- "$HOME/.local/kitty.app/share/applications/kitty.desktop" \
 		"$HOME/.local/share/applications/kitty.desktop"
 	sed -i \
 		-e "s|Icon=kitty|Icon=$HOME/.local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png|g" \
-		-e "s|Exec=kitty|Exec=$HOME/.local/kitty.app/bin/kitty|g" \
+		-e "s|Exec=kitty|Exec=$HOME/.local/bin/kitty|g" \
 		"$HOME/.local/share/applications/kitty.desktop"
 }
 
