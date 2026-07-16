@@ -1,0 +1,3 @@
+# Generated agent integrations contain machine-specific absolute paths.
+.codex/hooks.json
+.claude/settings.local.json

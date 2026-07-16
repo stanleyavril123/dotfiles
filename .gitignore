@@ -1,1 +1,3 @@
-.codex/hooks.json
+.codex/
+.claude/
+.config/nvim/.codex/

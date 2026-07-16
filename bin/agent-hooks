@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+if ! command -v nvim >/dev/null 2>&1; then
+	printf 'Neovim is not available in PATH. Run the dotfiles installer first.\n' >&2
+	exit 1
+fi
+
+project_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+cd -- "$project_root"
+
+printf 'Installing Codex and Claude Code preview hooks in %s\n' "$project_root"
+nvim --headless \
+	"+lua require('lazy').load({ plugins = { 'code-preview.nvim' } })" \
+	"+CodePreviewInstallCodexCliHooks" \
+	"+CodePreviewInstallClaudeCodeHooks" \
+	+qa
+
+printf 'Hooks installed. Restart Codex and Claude Code before testing edits.\n'
