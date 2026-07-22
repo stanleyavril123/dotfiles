@@ -41,6 +41,7 @@ To install the editor and terminal setup without optional coding-agent CLIs:
 - Kitty windows start maximized through the tracked `~/.local/bin/kitty` launcher
 - tmux with `Ctrl-a`, Vim navigation, copy mode, and system clipboard support
 - JetBrainsMono Nerd Font 3.3.0
+- Starship 1.24.2 with a colored Nerd Font prompt and Git status
 - Mason language servers and formatters
 - Claude Code stable channel
 - A terminal-first coding-agent workflow using tmux and Git
@@ -52,8 +53,10 @@ Configuration is stored in the standard home-directory layout:
 ~/.dotfiles/
 ├── .config/
 │   ├── kitty/
+│   ├── bash/
 │   ├── git/
-│   └── nvim/
+│   ├── nvim/
+│   └── starship.toml
 ├── .tmux.conf
 └── install.sh
 ```
@@ -63,7 +66,9 @@ The installer creates these links:
 ```text
 ~/.config/nvim  -> ~/.dotfiles/.config/nvim
 ~/.config/kitty -> ~/.dotfiles/.config/kitty
+~/.config/bash/prompt.bash -> ~/.dotfiles/.config/bash/prompt.bash
 ~/.config/git/ignore -> ~/.dotfiles/.config/git/ignore
+~/.config/starship.toml -> ~/.dotfiles/.config/starship.toml
 ~/.tmux.conf    -> ~/.dotfiles/.tmux.conf
 ~/.local/bin/kitty -> ~/.dotfiles/bin/kitty
 ```
@@ -94,6 +99,7 @@ repository and are ready to commit.
 
 ## What Stays Machine-local
 
+The installer adds one source line to `~/.bashrc` for the tracked prompt config.
 The repository deliberately does not contain SSH keys, GitHub tokens, or Claude
 credentials. Sign in to the required services once on each computer. Everything
 else listed above is recreated by the installer.

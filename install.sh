@@ -6,6 +6,7 @@ readonly DOTFILES_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 readonly NVIM_VERSION="0.10.3"
 readonly KITTY_VERSION="0.32.2"
 readonly NERD_FONT_VERSION="3.3.0"
+readonly STARSHIP_VERSION="1.24.2"
 readonly NVIM_DIR="$HOME/.local/opt/nvim-v${NVIM_VERSION}"
 readonly FONT_DIR="$HOME/.local/share/fonts/JetBrainsMonoNerdFont-${NERD_FONT_VERSION}"
 
@@ -177,12 +178,55 @@ install_font() {
 	fc-cache -f
 }
 
+install_starship() {
+	local asset_arch
+	local temp_dir
+
+	if command -v starship >/dev/null 2>&1 && \
+		starship --version | head -1 | grep -q "starship ${STARSHIP_VERSION}"; then
+		printf 'Starship %s is already installed.\n' "$STARSHIP_VERSION"
+		return
+	fi
+
+	case "$(uname -m)" in
+		x86_64) asset_arch="x86_64" ;;
+		aarch64 | arm64) asset_arch="aarch64" ;;
+		*)
+			printf 'Unsupported CPU architecture for Starship: %s\n' "$(uname -m)" >&2
+			exit 1
+			;;
+	esac
+
+	log "Installing Starship ${STARSHIP_VERSION}"
+	temp_dir="$(mktemp -d)"
+	curl --fail --location --retry 3 \
+		"https://github.com/starship/starship/releases/download/v${STARSHIP_VERSION}/starship-${asset_arch}-unknown-linux-musl.tar.gz" \
+		--output "$temp_dir/starship.tar.gz"
+	tar -xzf "$temp_dir/starship.tar.gz" -C "$temp_dir"
+	mkdir -p "$HOME/.local/bin"
+	install -m 0755 "$temp_dir/starship" "$HOME/.local/bin/starship"
+	rm -rf -- "$temp_dir"
+}
+
 link_configs() {
 	log "Linking dotfiles"
 	link_dotfile "$DOTFILES_DIR/.config/nvim" "$HOME/.config/nvim"
 	link_dotfile "$DOTFILES_DIR/.config/kitty" "$HOME/.config/kitty"
 	link_dotfile "$DOTFILES_DIR/.config/git/ignore" "$HOME/.config/git/ignore"
+	link_dotfile "$DOTFILES_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
+	link_dotfile "$DOTFILES_DIR/.config/bash/prompt.bash" "$HOME/.config/bash/prompt.bash"
 	link_dotfile "$DOTFILES_DIR/.tmux.conf" "$HOME/.tmux.conf"
+}
+
+configure_bash() {
+	local bashrc="$HOME/.bashrc"
+	local source_line='[[ -f "$HOME/.config/bash/prompt.bash" ]] && source "$HOME/.config/bash/prompt.bash"'
+
+	touch "$bashrc"
+	if ! grep -Fqx -- "$source_line" "$bashrc"; then
+		printf '\n# Load the prompt managed by ~/.dotfiles.\n%s\n' "$source_line" >>"$bashrc"
+		printf 'Enabled the managed Starship prompt in %s\n' "$bashrc"
+	fi
 }
 
 check_path() {
@@ -208,12 +252,14 @@ main() {
 		install_neovim
 		install_kitty
 		install_font
+		install_starship
 		if [[ "$INSTALL_AGENTS" == true ]]; then
 			install_claude
 		fi
 	fi
 
 	link_configs
+	configure_bash
 	check_path
 
 	if [[ "$LINK_ONLY" == false ]]; then

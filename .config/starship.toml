@@ -1,0 +1,30 @@
+add_newline = false
+format = "$directory$git_branch$git_status$python$cmd_duration$character"
+
+[directory]
+format = "[$path]($style) "
+style = "bold blue"
+truncation_length = 3
+
+[git_branch]
+format = "[$symbol$branch]($style) "
+symbol = " "
+style = "bold purple"
+
+[git_status]
+format = "([$all_status$ahead_behind]($style) )"
+style = "bold yellow"
+
+[python]
+format = "[${symbol}${pyenv_prefix}(${version} )(\\($virtualenv\\) )]($style)"
+symbol = " "
+style = "bold yellow"
+
+[cmd_duration]
+min_time = 2000
+format = "[$duration]($style) "
+style = "dimmed white"
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
