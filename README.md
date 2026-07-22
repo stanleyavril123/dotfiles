@@ -43,7 +43,7 @@ To install the editor and terminal setup without optional coding-agent CLIs:
 - JetBrainsMono Nerd Font 3.3.0
 - Mason language servers and formatters
 - Claude Code stable channel
-- Project-local diff preview hooks for both Claude Code and Codex
+- A terminal-first coding-agent workflow using tmux and Git
 - Ubuntu command-line dependencies such as ripgrep, Node.js, Python, and build tools
 
 Configuration is stored in the standard home-directory layout:
@@ -55,7 +55,6 @@ Configuration is stored in the standard home-directory layout:
 │   ├── git/
 │   └── nvim/
 ├── .tmux.conf
-├── bin/agent-hooks
 └── install.sh
 ```
 
@@ -67,7 +66,6 @@ The installer creates these links:
 ~/.config/git/ignore -> ~/.dotfiles/.config/git/ignore
 ~/.tmux.conf    -> ~/.dotfiles/.tmux.conf
 ~/.local/bin/kitty -> ~/.dotfiles/bin/kitty
-~/.local/bin/agent-hooks -> ~/.dotfiles/bin/agent-hooks
 ```
 
 ## Updating
@@ -96,11 +94,9 @@ repository and are ready to commit.
 
 ## What Stays Machine-local
 
-The repository deliberately does not contain SSH keys, GitHub tokens, Claude
-credentials, or project-specific agent hooks. Those are secrets or contain
-absolute machine paths. Sign in once on each computer and run `agent-hooks` in
-each project that needs editor previews. Everything else listed above is
-recreated by the installer.
+The repository deliberately does not contain SSH keys, GitHub tokens, or Claude
+credentials. Sign in to the required services once on each computer. Everything
+else listed above is recreated by the installer.
 
 ## Neovim Workflow
 
@@ -118,25 +114,26 @@ Leader is `Space`.
 | `<C-n>` | Toggle file explorer |
 | `<leader>gg` | Open Neogit |
 | `<leader>gd` | Open Diffview |
-| `<leader>dq` | Close a Codex diff preview |
+| `<leader>mp` | Toggle rendered Markdown preview |
 
 Use `:Mason`, `:ConformInfo`, `:OverseerRun`, and `:checkhealth` to inspect the
 development tooling.
 
 ## Coding Agents
 
-The Neovim diff preview supports both Codex CLI and Claude Code. Hooks contain
-machine-local plugin paths, so they are generated per project instead of being
-committed. From the root of any project, run:
+Coding agents run in a separate tmux pane while Neovim remains the editor and
+Git provides the review boundary. From a project opened in Neovim:
 
-```bash
-agent-hooks
-```
+1. Press `Ctrl-a v` to create a pane on the right.
+2. Start `codex` or `claude` from the project root and give it a coherent task.
+3. Move between the editor and agent with `Ctrl-h` and `Ctrl-l`.
+4. After the agent finishes, use `[h` and `]h` to inspect changed hunks or
+   `<leader>gd` to review the complete working-tree diff.
+5. Use `<leader>gg` to stage, discard, and commit the reviewed changes.
 
-Restart Codex and Claude Code after installing the hooks. Claude Code will ask
-you to authenticate the first time you run `claude`; credentials remain local
-and are never stored in this repository. Use `:CodePreviewStatus` in Neovim to
-check both integrations.
+Neovim checks for externally modified files when focus returns, so edits made by
+the agent are reloaded without an agent-specific preview plugin. Commit before a
+large task when an easy rollback point is useful.
 
 ## tmux Workflow
 

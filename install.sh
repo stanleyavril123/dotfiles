@@ -183,7 +183,6 @@ link_configs() {
 	link_dotfile "$DOTFILES_DIR/.config/kitty" "$HOME/.config/kitty"
 	link_dotfile "$DOTFILES_DIR/.config/git/ignore" "$HOME/.config/git/ignore"
 	link_dotfile "$DOTFILES_DIR/.tmux.conf" "$HOME/.tmux.conf"
-	link_dotfile "$DOTFILES_DIR/bin/agent-hooks" "$HOME/.local/bin/agent-hooks"
 }
 
 check_path() {
