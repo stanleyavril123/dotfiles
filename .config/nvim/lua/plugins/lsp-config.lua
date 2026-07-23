@@ -73,6 +73,7 @@ return {
 				cssls = {},
 				eslint = {},
 				pyright = {},
+				rust_analyzer = {},
 				gopls = {},
 				clangd = {},
 				jdtls = {},

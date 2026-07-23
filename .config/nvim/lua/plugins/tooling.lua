@@ -11,6 +11,7 @@ return {
 				"css-lsp",
 				"eslint-lsp",
 				"pyright",
+				"rust-analyzer",
 				"gopls",
 				"clangd",
 				"jdtls",

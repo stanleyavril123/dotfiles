@@ -212,7 +212,6 @@ link_configs() {
 	log "Linking dotfiles"
 	link_dotfile "$DOTFILES_DIR/.config/nvim" "$HOME/.config/nvim"
 	link_dotfile "$DOTFILES_DIR/.config/kitty" "$HOME/.config/kitty"
-	link_dotfile "$DOTFILES_DIR/.config/git/ignore" "$HOME/.config/git/ignore"
 	link_dotfile "$DOTFILES_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
 	link_dotfile "$DOTFILES_DIR/.config/bash/prompt.bash" "$HOME/.config/bash/prompt.bash"
 	link_dotfile "$DOTFILES_DIR/.tmux.conf" "$HOME/.tmux.conf"

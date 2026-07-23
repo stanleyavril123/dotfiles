@@ -54,7 +54,6 @@ Configuration is stored in the standard home-directory layout:
 ├── .config/
 │   ├── kitty/
 │   ├── bash/
-│   ├── git/
 │   ├── nvim/
 │   └── starship.toml
 ├── .tmux.conf
@@ -67,7 +66,6 @@ The installer creates these links:
 ~/.config/nvim  -> ~/.dotfiles/.config/nvim
 ~/.config/kitty -> ~/.dotfiles/.config/kitty
 ~/.config/bash/prompt.bash -> ~/.dotfiles/.config/bash/prompt.bash
-~/.config/git/ignore -> ~/.dotfiles/.config/git/ignore
 ~/.config/starship.toml -> ~/.dotfiles/.config/starship.toml
 ~/.tmux.conf    -> ~/.dotfiles/.tmux.conf
 ~/.local/bin/kitty -> ~/.dotfiles/bin/kitty
