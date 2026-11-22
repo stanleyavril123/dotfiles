@@ -231,12 +231,15 @@ Codex runs at the file's Git root, or Neovim's working directory outside Git.
 Neovim remembers the active chat and model choice for each project across
 restarts.
 
-The status line shows when Codex is working. Save the file if you want its
-buffer to refresh as Codex writes to disk. If both versions change, Neovim
-keeps your unsaved buffer and shows a message. Command and file approval
-requests appear in Neovim. A small completion window appears without moving
-focus. Codex replies render Markdown in the completion window, review, and
-transcript. The transcript uses separate theme colors for **You** and **Codex**.
+A corner indicator shows what Codex is doing and how long it has been running.
+When Codex shares a plan, the indicator shows how many steps are complete. It
+switches to a result summary when the turn finishes, while focus stays in the
+editor. Command and file approval requests appear in Neovim.
+
+Save the file if you want its buffer to refresh as Codex writes to disk. If
+both versions change, Neovim keeps your unsaved buffer and shows a message.
+Codex replies render Markdown in the result summary, review, and transcript.
+The transcript uses separate theme colors for **You** and **Codex**.
 
 | Mapping | Action |
 | --- | --- |

@@ -109,7 +109,15 @@ local function approval(server, event)
 	if not present(params.availableDecisions) or vim.tbl_contains(params.availableDecisions, "accept") then
 		table.insert(choices, 2, "Approve once")
 	end
+	local run = runs[params.threadId]
+	if run then
+		run.waiting_for_approval = (run.waiting_for_approval or 0) + 1
+		review.progress(run)
+	end
 	vim.ui.select(choices, { prompt = table.concat(details, " · ") }, function(choice)
+		if run then
+			run.waiting_for_approval = run.waiting_for_approval - 1
+		end
 		local decision = choice == "Approve once" and "accept" or choice == "Decline" and "decline" or "cancel"
 		server.reply(event.id, { decision = decision })
 	end)
@@ -128,6 +136,14 @@ local function interrupt(run)
 		end
 	end)
 end
+
+local item_activity = {
+	agentMessage = "Writing a reply",
+	commandExecution = "Running a command",
+	fileChange = "Editing files",
+	mcpToolCall = "Using a tool",
+	webSearch = "Searching the web",
+}
 
 local function on_event(server, event)
 	if event.id then
@@ -163,19 +179,31 @@ local function on_event(server, event)
 	end
 	if event.method == "turn/started" then
 		run.turn = turn.id
+		run.activity = "Working"
 		if run.cancel then
 			interrupt(run)
 		end
+	elseif event.method == "turn/plan/updated" then
+		run.plan = params.plan
 	elseif event.method == "turn/diff/updated" then
 		run.diff = params.diff
 		refresh(run)
+	elseif event.method == "item/started" then
+		local item = params.item
+		if item_activity[item.type] then
+			run.activity, run.activity_item = item_activity[item.type], item.id
+		end
 	elseif event.method == "item/agentMessage/delta" then
 		if run.answer_item ~= params.itemId then
 			run.answer, run.answer_item = "", params.itemId
+			run.activity, run.activity_item = "Writing a reply", params.itemId
 		end
 		run.answer = run.answer .. params.delta
 	elseif event.method == "item/completed" then
 		local item = params.item
+		if run.activity_item == item.id then
+			run.activity, run.activity_item = "Working", nil
+		end
 		if item.type == "agentMessage" and item.text ~= "" then
 			run.answer, run.answer_item = item.text, item.id
 		elseif item.type == "fileChange" then
@@ -246,6 +274,7 @@ local function begin(state, prompt)
 	local run = { state = state, root = state.root, status = "running", answer = "", diff = "", changes = {}, commands = {} }
 	run.model, run.effort = state.model, state.effort
 	state.active = run
+	review.started(run)
 	run.timer = vim.fn.timer_start(1000, function()
 		refresh(run)
 		vim.cmd.redrawstatus()

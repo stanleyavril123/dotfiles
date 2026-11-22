@@ -70,6 +70,7 @@ function M.float(lines, opts)
 			or math.max(0, math.floor((vim.o.columns - width) / 2)),
 		style = "minimal",
 		border = "rounded",
+		zindex = opts.zindex,
 		title = " " .. opts.title .. " ",
 		focusable = opts.focus == true,
 		noautocmd = true,
@@ -116,13 +117,90 @@ local function summary(run)
 	return lines, reply_start
 end
 
-local notice
-function M.completed(run)
-	if notice and vim.api.nvim_win_is_valid(notice) then
-		vim.api.nvim_win_close(notice, true)
+local notice, activity
+local active = {}
+local spinner = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
+
+local function close(win)
+	if win and vim.api.nvim_win_is_valid(win) then
+		vim.api.nvim_win_close(win, true)
 	end
+end
+
+local function elapsed(run)
+	return math.floor((vim.uv.hrtime() - run.started_at) / 1e9)
+end
+
+local function progress_detail(plan)
+	if not plan or #plan == 0 then
+		return "Space a r  Review   ·   Space a x  Stop"
+	end
+	local done, current = 0, nil
+	for _, step in ipairs(plan) do
+		if step.status == "completed" then
+			done = done + 1
+		elseif step.status == "inProgress" then
+			current = step.step:gsub("%s+", " ")
+		end
+	end
+	local filled = math.floor(8 * done / #plan)
+	local bar = string.rep("━", filled) .. string.rep("─", 8 - filled)
+	return ("%s  %d/%d%s"):format(bar, done, #plan, current and ("  " .. current) or " steps")
+end
+
+function M.progress(run)
+	if active[#active] ~= run or vim.fn.getcmdwintype() ~= "" or (notice and vim.api.nvim_win_is_valid(notice)) then
+		return
+	end
+	local seconds = elapsed(run)
+	local frame = math.floor((vim.uv.hrtime() - run.started_at) / 1.2e8)
+	local stage = run.cancel and "Stopping"
+		or (run.waiting_for_approval or 0) > 0 and "Waiting for approval"
+		or run.activity or "Starting Codex"
+	local lines = {
+		("%s %s · %d:%02d"):format(spinner[frame % #spinner + 1], stage, math.floor(seconds / 60), seconds % 60),
+		progress_detail(run.plan),
+	}
+	local tab = vim.api.nvim_get_current_tabpage()
+	if not activity or not vim.api.nvim_win_is_valid(activity.win)
+		or activity.tab ~= tab or activity.columns ~= vim.o.columns or activity.lines ~= vim.o.lines
+	then
+		close(activity and activity.win)
+		local buf, win = M.float(lines, { title = "Codex", bottom = true, width = 45, height = 2, zindex = 40 })
+		vim.wo[win].wrap = false
+		vim.wo[win].winhighlight = "FloatBorder:DiagnosticInfo,FloatTitle:Title"
+		activity = { buf = buf, win = win, tab = tab, columns = vim.o.columns, lines = vim.o.lines }
+	else
+		vim.api.nvim_buf_set_lines(activity.buf, 0, -1, false, lines)
+	end
+end
+
+function M.started(run)
+	run.started_at = vim.uv.hrtime()
+	table.insert(active, run)
+	close(notice)
+	M.progress(run)
+	run.progress_timer = vim.fn.timer_start(120, function()
+		M.progress(run)
+	end, { ["repeat"] = -1 })
+end
+
+function M.completed(run)
+	if run.progress_timer then
+		vim.fn.timer_stop(run.progress_timer)
+		for index, running in ipairs(active) do
+			if running == run then
+				table.remove(active, index)
+				break
+			end
+		end
+	end
+	close(activity and activity.win)
+	close(notice)
 	local _, files = entries(run)
-	local lines = { ("Codex %s · %d changed %s"):format(run.status, files, files == 1 and "file" or "files") }
+	local outcome = ({ completed = "Done", interrupted = "Stopped", failed = "Failed" })[run.status] or run.status
+	local timing = run.started_at and (" · %ds"):format(elapsed(run)) or ""
+	local lines = { ("%s · %d changed %s%s"):format(outcome, files, files == 1 and "file" or "files", timing) }
 	local reply, first = summary(run)
 	local preview_start
 	for index, line in ipairs(reply) do
@@ -139,17 +217,17 @@ function M.completed(run)
 	local preview_end = #lines
 	table.insert(lines, "Space a r  Review")
 	local title = run.thread and ("Codex · Chat " .. run.thread:sub(-6)) or "Codex"
-	local buf, win = M.float(lines, { title = title, bottom = true, height = 4 })
+	local buf, win = M.float(lines, { title = title, bottom = true, height = 4, zindex = 40 })
 	vim.wo[win].wrap = false
+	local color = ({ completed = "DiagnosticOk", interrupted = "DiagnosticWarn", failed = "DiagnosticError" })[run.status]
+	vim.wo[win].winhighlight = "FloatBorder:" .. (color or "FloatBorder") .. ",FloatTitle:Title"
 	if preview_start then
 		M.markdown(buf, win, { { preview_start, preview_end } })
 	end
 	notice = win
 	vim.defer_fn(function()
-		if vim.api.nvim_win_is_valid(win) then
-			vim.api.nvim_win_close(win, true)
-		end
-	end, 6500)
+		close(win)
+	end, 10000)
 end
 
 function M.open(run, follow_up)
