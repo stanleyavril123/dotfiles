@@ -45,7 +45,7 @@ To install the editor and terminal setup without optional coding-agent CLIs:
 - Starship 1.24.2 with a colored Nerd Font prompt and Git status
 - Mason language servers and formatters
 - Claude Code stable channel
-- A terminal-first coding-agent workflow using tmux and Git
+- Codex prompts, chat history, and change review in Neovim
 - Ubuntu command-line dependencies such as ripgrep, Node.js, Python, and build tools
 
 Configuration is stored in the standard home-directory layout:
@@ -187,9 +187,8 @@ repository and are ready to commit.
 ## What Stays Machine-local
 
 The installer adds one source line to `~/.bashrc` for the tracked prompt config.
-The repository deliberately does not contain SSH keys, GitHub tokens, or Claude
-credentials. Sign in to the required services once on each computer. Everything
-else listed above is recreated by the installer.
+SSH keys, GitHub tokens, and coding-agent credentials stay on each machine.
+Sign in to the services you use after setup.
 
 ## Neovim Workflow
 
@@ -213,21 +212,44 @@ Leader is `Space`.
 Use `:Mason`, `:ConformInfo`, `:OverseerRun`, and `:checkhealth` to inspect the
 development tooling.
 
-## Coding Agents
+## Codex in Neovim
 
-Coding agents run in a separate tmux pane while Neovim remains the editor and
-Git provides the review boundary. From a project opened in Neovim:
+Install the [Codex CLI](https://developers.openai.com/codex/cli) separately and
+make sure `codex` is on `PATH` when you start Neovim. Run `codex login` if you
+need to sign in. The floating prompt uses `codex app-server` and shares the
+CLI's sign-in and settings. This configuration was tested with Codex CLI 0.171.0
+and Neovim 0.10.3.
 
-1. Press `Ctrl-a v` to create a pane on the right.
-2. Start `codex` or `claude` from the project root and give it a coherent task.
-3. Move between the editor and agent with `Ctrl-h` and `Ctrl-l`.
-4. After the agent finishes, use `[h` and `]h` to inspect changed hunks or
-   `<leader>gd` to review the complete working-tree diff.
-5. Use `<leader>gg` to stage, discard, and commit the reviewed changes.
+Open a project file or select text and press `<leader>aa` (or run `:Codex`).
+Neovim includes the file or selected text. `Enter` sends the prompt and puts
+focus back on the code. `Esc` closes the prompt and `Ctrl-j` adds a line.
+The prompt shows the chat name and short ID, or **New chat** before the first
+message. Type `/help` for commands, including `/model`, `/status`, `/chat`,
+`/new`, and `/rename`. Run the same commands from the editor with `:Codex`,
+for example `:Codex model` or `:Codex rename Checkout cleanup`.
+Codex runs at the file's Git root, or Neovim's working directory outside Git.
+Neovim remembers the active chat and model choice for each project across
+restarts.
 
-Neovim checks for externally modified files when focus returns, so edits made by
-the agent are reloaded without an agent-specific preview plugin. Commit before a
-large task when an easy rollback point is useful.
+The status line shows when Codex is working. Save the file if you want its
+buffer to refresh as Codex writes to disk. If both versions change, Neovim
+keeps your unsaved buffer and shows a message. Command and file approval
+requests appear in Neovim. A small completion window appears without moving
+focus. Codex replies render Markdown in the completion window, review, and
+transcript. The transcript uses separate theme colors for **You** and **Codex**.
+
+| Mapping | Action |
+| --- | --- |
+| `<leader>aa` | Open the Codex prompt for the current file or visual selection. |
+| `<leader>ac` | Open the Codex command menu. Model and reasoning choices apply to subsequent turns in this project. |
+| `<leader>at` | Read the active chat's prompts and answers. Press `o` for older turns or `r` to reply in that chat. |
+| `<leader>ar` | Review the current or latest turn. `Enter` jumps to a hunk, `d` shows its diff, and `r` asks for a revision in the same chat. |
+| `<leader>ah` | Find an earlier project chat or start a new one. The next prompt otherwise continues the active chat. |
+| `<leader>ax` | Stop the current turn. Changes already written to disk remain available for review. |
+| `<leader>gd` | Open Diffview for the full working-tree diff. |
+
+For a separate terminal, use `Ctrl-a v` in tmux and start `codex` or `claude`
+from the project root.
 
 ## tmux Workflow
 

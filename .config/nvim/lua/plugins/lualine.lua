@@ -23,6 +23,7 @@ return {
 					{ "filename", path = 1, symbols = { modified = " ●", readonly = " ", unnamed = "[No Name]" } },
 				},
 				lualine_x = {
+					require("config.codex").status,
 					{
 						"diagnostics",
 						sources = { "nvim_diagnostic" },

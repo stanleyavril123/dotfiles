@@ -4,7 +4,22 @@ vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold" }, {
 	group = group,
 	callback = function()
 		if vim.fn.getcmdwintype() == "" then
-			vim.cmd("checktime")
+			vim.cmd.checktime()
+		end
+	end,
+})
+
+vim.api.nvim_create_autocmd("FileChangedShell", {
+	group = group,
+	callback = function(args)
+		if vim.v.fcs_reason == "conflict" then
+			vim.v.fcs_choice = ""
+			local file = vim.fn.fnamemodify(args.file, ":~:.")
+			vim.schedule(function()
+				vim.notify(file .. " changed on disk. Your unsaved edits are still in the buffer.", vim.log.levels.WARN)
+			end)
+		else
+			vim.v.fcs_choice = "ask"
 		end
 	end,
 })
